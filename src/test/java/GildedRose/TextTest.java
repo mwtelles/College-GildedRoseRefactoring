@@ -1,6 +1,6 @@
 package GildedRose;
 
-public class TexttestFixture {
+public class TextTest {
     public static void main(String[] args) {
         System.out.println("OMGHAI!");
 
