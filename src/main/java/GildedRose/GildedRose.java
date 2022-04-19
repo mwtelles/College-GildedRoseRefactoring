@@ -24,34 +24,43 @@ class GildedRose {
             item.quality = adjustQuality;
         }
     }
+    private int determineDegradeRate(Item item, boolean isExpired) {
+        final int baseDegradeRate = item.name.equals(CONJURED) ? -2 : -1;
+        return isExpired ? baseDegradeRate * 2 : baseDegradeRate;
+    }
+
+
+    private void updateBackstageQuality(Item item, boolean isExpired) {
+        countQuality(item, 1);
+        if (item.sellIn < 11 && item.sellIn < 6){
+            countQuality(item, 1);
+        }
+        if (isExpired) {
+            item.quality = item.quality - item.quality;
+        }
+    }
 
     public void updateItemQuality(Item item) {
-        int conjuredQuality = item.name.equals(CONJURED) ? -2 : -1;
-        if (!item.name.equals(AGED_BRIE) && !item.name.equals(BACKSTAGE) && !item.name.equals(SULFURAS)) {
-            countQuality(item, conjuredQuality);
-        } else {
-            countQuality(item, 1);
-            if (item.name.equals(BACKSTAGE) && item.sellIn < 11) {
-                countQuality(item, 1);
-            }
+        boolean isExpired = item.sellIn < 1;
+        int degradeRate = determineDegradeRate(item, isExpired);
+        boolean doesDegrade = !item.name.equals(AGED_BRIE) && !item.name.equals(BACKSTAGE) && !item.name.equals(SULFURAS);
+        boolean hasSellByDate = !item.name.equals(SULFURAS);
+
+        if (doesDegrade) {
+            countQuality(item, degradeRate);
         }
 
-        if (!item.name.equals(SULFURAS)) {
+        if (item.name.equals(AGED_BRIE)) {
+            int adjustment = isExpired ? 2 : 1;
+            countQuality(item, adjustment);
+        }
+
+        if (item.name.equals(BACKSTAGE)) {
+            updateBackstageQuality(item, isExpired);
+        }
+
+        if (hasSellByDate) {
             item.sellIn = item.sellIn - 1;
-        }
-
-        if (item.sellIn < 0) {
-            if (!item.name.equals(AGED_BRIE)) {
-                if (!item.name.equals(BACKSTAGE)) {
-                    if (!item.name.equals(SULFURAS)) {
-                        countQuality(item, conjuredQuality);
-                    } else {
-                        item.quality = item.quality - item.quality;
-                    }
-                } else {
-                    countQuality(item, 1);
-                }
-            }
         }
     }
 }
